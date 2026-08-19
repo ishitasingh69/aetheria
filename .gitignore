@@ -7,3 +7,4 @@ midnight-level-db
 !.env.example
 *.tsbuildinfo
 .vercel
+dist

@@ -1,43 +1,40 @@
-pragma language_version >= 0.23;
+pragma language_version >= 0.16;
 
 import CompactStandardLibrary;
 
-// aetheria — shielded matching + solvency. draft surface.
+// aetheria — shielded order commitments + continuous solvency proof.
+// scoped-down v0 surface: placeOrder inserts a commitment, proveSolvency
+// asserts a witness-held collateral value covers a witness-held debt value
+// at a public ratio, disclosing only a boolean + epoch counter.
 
-export ledger orderTree: MerkleTree<32, Bytes<32>>;
-export ledger spent: Set<Bytes<32>>;
-export ledger fills: Counter;
+export ledger orders: Set<Bytes<32>>;
+export ledger orderCount: Counter;
+export ledger requiredRatioBps: Uint<32>;
 export ledger solvencyOk: Boolean;
 export ledger solvencyEpoch: Counter;
-export ledger requiredRatioBps: Uint<32>;
 
-witness ownerSk(): Bytes<32>;
-witness orderPreimage(): Vector<4, Field>;   // side, price, size, expiry
-witness aggCollateral(): Field;
-witness aggDebt(): Field;
-
-circuit orderCommit(pre: Vector<4, Field>, sk: Bytes<32>, salt: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<3, Bytes<32>>>(
-    [pad(32, "aeth:ord:1"), sk, salt]
-  );
-}
+witness collateralValue(): Uint<64>;
+witness debtValue(): Uint<64>;
 
 constructor(ratioBps: Uint<32>) {
   requiredRatioBps = disclose(ratioBps);
   solvencyOk = true;
 }
 
-// commit an order. the ledger learns that an order exists. nothing else.
+// commit an order. the ledger learns only that an order exists.
 export circuit placeOrder(commit: Bytes<32>): [] {
-  orderTree.insert(disclose(commit));
+  assert(!orders.member(disclose(commit)), "order already committed");
+  orders.insert(disclose(commit));
+  orderCount.increment(1);
 }
 
-// prove aggregate collateral covers aggregate debt at the required ratio,
-// without opening either aggregate.
-export circuit proveSolvency(epoch: Uint<32>): [] {
-  const c = aggCollateral();
-  const d = aggDebt();
-  assert(c * 10000 >= d * (requiredRatioBps as Field), "insolvent");
-  solvencyOk = true;
+// prove witness-held collateral covers witness-held debt at the public
+// required ratio, without disclosing either value.
+export circuit proveSolvency(): [] {
+  const collateral = collateralValue();
+  const debt = debtValue();
+  const ok = collateral * 10000 >= debt * (requiredRatioBps as Uint<64>);
+  assert(ok, "insolvent");
+  solvencyOk = disclose(ok);
   solvencyEpoch.increment(1);
 }
