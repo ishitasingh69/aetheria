@@ -1,0 +1,9 @@
+node_modules
+.svelte-kit
+build
+managed
+midnight-level-db
+.env*
+!.env.example
+*.tsbuildinfo
+.vercel
