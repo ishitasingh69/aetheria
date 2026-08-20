@@ -1,0 +1,200 @@
+/* aetheria terminal design system — plain css, no framework. */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: local('JetBrains Mono');
+  font-display: swap;
+}
+
+:root {
+  /* surfaces */
+  --bg: #07090c;
+  --panel: #0c1014;
+  --hairline: #1b2229;
+
+  /* ink */
+  --ink: #c8d3dd;
+  --ink-muted: #6b7a88;
+
+  /* signal */
+  --bid: #3fb950;
+  --ask: #f85149;
+  --accent: #e3b341;
+
+  /* geometry */
+  --radius: 2px;
+  --unit: 4px;
+  --motion: 90ms linear;
+
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo,
+    Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  margin: 0 0 calc(var(--unit) * 3);
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--ink);
+}
+
+p {
+  color: var(--ink-muted);
+  max-width: 62ch;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2);
+  transition: border-color var(--motion), background var(--motion);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--ink-muted);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button.primary {
+  background: var(--bid);
+  border-color: var(--bid);
+  color: #07090c;
+  font-weight: 600;
+}
+
+button.danger {
+  background: var(--ask);
+  border-color: var(--ask);
+  color: #07090c;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hairline {
+  border-color: var(--hairline);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: calc(var(--unit) * 4);
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+.bid {
+  color: var(--bid);
+}
+
+.ask {
+  color: var(--ask);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.mono-grid {
+  font-size: 12px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #07090c;
+}
+
+/* solvency rail — the permanent strip. states: solvent / stale / withdraw-only */
+.solvency-rail {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--unit) * 3);
+  padding: 0 calc(var(--unit) * 4);
+  font-size: 12px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--panel);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.solvency-rail[data-state='solvent'] {
+  border-bottom-color: var(--bid);
+}
+
+.solvency-rail[data-state='stale'] {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.solvency-rail[data-state='withdraw-only'] {
+  background: var(--ask);
+  color: #07090c;
+  border-bottom-color: var(--ask);
+}
+
+.rail-sep {
+  color: var(--ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

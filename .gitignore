@@ -2,6 +2,7 @@ node_modules
 .svelte-kit
 build
 managed
+web/static/zk
 midnight-level-db
 .env*
 !.env.example

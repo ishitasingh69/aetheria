@@ -62,35 +62,63 @@ eliminated.
 ### layout
 
 ```
-contract/       aetheria.compact, witnesses.ts
+contract/       aetheria.compact, witnesses.ts, managed/ (compiled zkir + keys, gitignored)
+api/src/        AetheriaAPI: providers, join/deploy, placeOrder/proveSolvency, ledger reads
+src/            deploy.ts, cli.ts, providers.ts, wallet.ts, dust.ts, vitest suite
 docs/
   protocol.md     state machine, circuits, solvency accumulator
   matching.md     order commitments, crossing proofs, auction mechanics
   interface.md    terminal ui spec, latency budget, onboarding
-node/           deploy + cli + vitest
-app/            sveltekit
+web/            sveltekit 2 terminal ui (plain css, no tailwind), real wallet connect
 ```
 
 ---
 
 ### run
 
-node 22, docker, `compact` 0.31.1, lace on preprod.
+node 22, docker, `compact` 0.5.1 (`compact compile +0.31.1 ...`), yarn 1.x, lace/1AM wallet.
 
 ```
-pnpm i
-pnpm env:up
-pnpm compile          # compact compile +0.31.1 contract/aetheria.compact contract/managed
-pnpm test             # undeployed network
-pnpm deploy:preprod
-pnpm dev              # :5173
+yarn install
+yarn env:up            # docker compose: node + indexer (needs docker; not available in every shell)
+yarn compile           # contract/aetheria.compact -> contract/managed/aetheria
+yarn test:local        # vitest against undeployed network
+yarn deploy:undeployed  # writes deployment.json — never fabricate this file by hand
+yarn web:install && yarn web:dev   # sveltekit terminal, :5173
+yarn web:build          # static build via adapter-static -> web/build
 ```
 
 ---
 
-### status
+### status (2026-08-20)
 
-spec complete. contract surface drafted. no audit. do not put real size through
-this.
+- **contract**: `aetheria.compact` compiles clean (`yarn compile` — 2 circuits, `placeOrder` +
+  `proveSolvency`). `npx tsc --noEmit` at repo root is clean.
+- **node-side stack** (`api/src`, `src/`): deploy/cli/providers/wallet/dust wired up per prior
+  session; vitest suite present at `src/test/aetheria.test.ts`. Not re-run against a live
+  network this session (see below).
+- **web/** (sveltekit terminal): full app scaffolded — landing page, `/terminal` route,
+  `SolvencyRail`/`WalletBar`/`SimulatedTerminal` components, real wallet-connect manager
+  mirroring the `proof-of-mind` reference (dapp-connector-api, in-memory private state
+  provider, fetch zk config provider, http proof provider, indexer public data provider).
+  `svelte-check` is clean (0 errors) and `yarn web:build` produces a working static build in
+  `web/build`. Fixed this session: a `$state`-shadowing bug in `SolvencyRail.svelte` (a local
+  `state` variable collided with Svelte 5's `$state` rune, misparsed as a store
+  auto-subscription), a `vite-plugin-top-level-await`/`@swc/core` version mismatch (pinned
+  `@swc/core` to `1.15.43` via `web/package.json` resolutions to match the known-working
+  version from the reference repo), and a Vite/Rollup resolution failure on
+  `@midnight-ntwrk/ledger-v8` (an exports-only package with no legacy `main`/`module` field —
+  excluded it from the blanket `@midnight-ntwrk/*` directory-alias list, switched its import
+  in `manager.ts` from dynamic to static, and added explicit `resolve.conditions` in
+  `web/vite.config.ts`).
+- **no contract is deployed.** This session verified `http://127.0.0.1:6300` (proof server),
+  `:8088` (indexer) and `:9944` (node) are all unreachable, and `docker` is not available in
+  this shell (WSL without Docker Desktop integration active). `deployment.json` does not exist
+  and `web/src/lib/midnight/config.ts` has `contractAddress: ''`. The terminal UI renders and
+  shows an explicit "no contract deployed" warning banner rather than pretending otherwise. Do
+  not fabricate a deployment — run `yarn deploy:undeployed` (or `:preview`/`:preprod`) once a
+  real network is reachable, then paste the resulting address into
+  `web/src/lib/midnight/config.ts`.
+- no audit. do not put real size through this.
 
 MIT.
