@@ -1,5 +1,42 @@
 # HANDOFF — aetheria
 
+## Audit status (this session, 2026-08-30)
+
+```
+$ node .claude/skills/midnight-level-pack/scripts/midnight-audit.mjs \
+    --project aetheria --target-level 3
+LEVEL 3: PASS
+```
+
+Pilot for the midnight-level-pack. aetheria is the reference project that
+proves the audit, the personality library, and the multi-page web shell
+work end-to-end. Personality: `neon-cyber`. Deployment: local docker
+compose (node + indexer + proof-server) on the undeployed network.
+Preprod is best-effort — wallet is not synced (no dust) so we fall back
+per the session instructions.
+
+### What this commit series did
+- picked the neon-cyber personality from the level-pack library
+- mounted a global DebugDrawer that surfaces midnight internals honestly
+  (wallet / last tx / circuit log / proof-server / errors)
+- added /app, /profile, /settings, /docs routes (multi-page per the
+  level-pack spec); /terminal was renamed to /app
+- refactored / as a real landing page (hero / problem / solution /
+  architecture / privacy model / why-it-matters / CTA)
+- added deployment.json for the undeployed network
+- added a GitHub Actions workflow that compiles, declares test count,
+  builds the web bundle, and runs the level-pack audit
+- generated a 30s brag video with ffmpeg (the deterministic fallback
+  when the brag skill is not invoked interactively)
+- added users.md (PLACEHOLDER opt-out), feedback.md, docs/x-profile.md
+- updated README with Idea / Setup / Privacy Model sections + Links
+
+### L4–L6 follow-ups
+- L4 needs a real preprod deploy with synced wallet. Undeployed is
+  accepted as best-effort; the HANDOFF records the fallback.
+- L5 / L6 require real user onboarding. The user opted out for this
+  batch; users.md / feedback.md are structural placeholders.
+
 ## Verified working (this session, 2026-08-20)
 - `yarn compile` — contract compiles clean (2 circuits: placeOrder, proveSolvency).
 - `npx tsc --noEmit` (repo root) — clean.
