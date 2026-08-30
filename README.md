@@ -161,6 +161,18 @@ ratio` at epoch N, *without* opening any position. the ledger only stores
 `solvencyOk: Boolean` and `provenAtEpoch: Counter` — the proof itself lives
 in the private state of whoever ran the circuit.
 
+## Architecture (level-pack section)
+
+aetheria is three layers, all running against the same Midnight state machine:
+
+1. **Compact contract** (`contract/aetheria.compact`) — two circuits: `placeOrder` (commitment + nullifier) and `proveSolvency` (ZK proof of aggregate ratio). Compiled to ZK circuits + proving/verification keys under `contract/managed/aetheria/`.
+2. **Node-side API** (`api/src/`, `src/`) — providers, wallet, dust, deploy, CLI, vitest. Reads indexer public state, signs transactions, never holds private state on disk.
+3. **Browser shell** (`web/`) — SvelteKit 2 app: `/` (landing), `/app` (terminal), `/profile`, `/settings`, `/docs`. Lace wallet via `dapp-connector-api`; in-memory private state provider; fetch-zk + http proof + indexer public data providers.
+
+The contract is the only source of truth. The two off-chain layers are
+pluggable: you can replace the browser shell with a CLI, or the node API
+with a server-side worker, without touching the contract.
+
 ## Links
 
 - Live demo (vercel/netlify): https://aetheria-midnight.vercel.app _(placeholder — deploy on a free tier to satisfy L2)_
