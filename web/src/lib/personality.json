@@ -1,0 +1,17 @@
+{
+  "id": "neon-cyber",
+  "label": "Neon Cyber",
+  "primary": "#FF00E5",
+  "secondary": "#00F0FF",
+  "ink": "#0A0A14",
+  "paper": "#0E0E1A",
+  "accent": "#FFE600",
+  "font": "'Orbitron', 'Space Grotesk', system-ui",
+  "rules": "neon glow on focus rings, 2px borders with chromatic-aberration shadow, scanlines on hover, no border-radius, all-caps small",
+  "mood": "synthwave, defiant, late-night",
+  "best_for": [
+    "ghosteconomy",
+    "voidballot",
+    "darktalent"
+  ]
+}
