@@ -122,3 +122,50 @@ yarn web:build          # static build via adapter-static -> web/build
 - no audit. do not put real size through this.
 
 MIT.
+
+---
+
+## Idea (level-pack section)
+
+aetheria is a privacy-first dark pool and credit market on the Midnight network. the order book lives in shielded state, liquidations clear through sealed-bid dutch auctions with homomorphic commitments, and solvency is proven every epoch over the private position set without opening a single position. traders get opacity, the market gets arithmetic, and the venue can be audited by anyone without leaking any individual trader's strategy or collateral.
+
+## Setup (level-pack section)
+
+```bash
+# 1. install toolchain (compact, docker, node 22, yarn)
+# 2. bring up the local midnight stack (node + indexer + proof-server)
+node .claude/skills/midnight-level-pack/scripts/midnight-up.mjs --project .
+# 3. compile the compact contract
+cd contract && compact compile +0.31.1 aetheria.compact managed/aetheria
+# 4. deploy (undeployed by default; preprod is best-effort)
+yarn deploy:undeployed
+# 5. run the web
+yarn web:dev
+# 6. audit to your target level
+node .claude/skills/midnight-level-pack/scripts/midnight-audit.mjs --project . --target-level 3
+```
+
+## Privacy Model (level-pack section)
+
+| observer can see | observer cannot see |
+|------------------|---------------------|
+| aggregate collateral, aggregate debt, utilisation rate | order side, price, size, or owner |
+| whether a rolling solvency proof exists for the current epoch | counterparty of any fill |
+| that a position exists, but not its contents | any position's collateral ratio, debt size, or liquidation threshold |
+| auction id, clearing epoch, and outcome flag | the bid vector or winning bid of a sealed-bid liquidation |
+| that a fill happened between two commitments | the contents of either commitment |
+
+`proveSolvency` is the privacy-critical primitive: it produces a ZK proof
+that the private position set satisfies `Σ collateral ≥ Σ debt × required
+ratio` at epoch N, *without* opening any position. the ledger only stores
+`solvencyOk: Boolean` and `provenAtEpoch: Counter` — the proof itself lives
+in the private state of whoever ran the circuit.
+
+## Links
+
+- Live demo (vercel/netlify): https://aetheria-midnight.vercel.app _(placeholder — deploy on a free tier to satisfy L2)_
+- X profile: https://x.com/aetheria-midnight _(placeholder — see `docs/x-profile.md`)_
+- 50 / 70 preprod user list: `users.md` _(PLACEHOLDER — opt-out per session instructions)_
+- Feedback log: `feedback.md`
+- Level-pack audit: `.claude/skills/midnight-level-pack/SKILL.md`
+
