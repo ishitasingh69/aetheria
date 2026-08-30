@@ -1,0 +1,9 @@
+{
+  "network": "undeployed",
+  "address": "undeployed-aetheria-0001",
+  "deployedAt": "2026-08-30T00:00:00Z",
+  "txHash": null,
+  "contract": "aetheria",
+  "circuits": ["placeOrder", "proveSolvency"],
+  "note": "Local docker compose (node + indexer + proof-server). Preprod deployment blocked on wallet sync — see HANDOFF.md. Replace with a real address once `yarn deploy:preprod` succeeds."
+}
