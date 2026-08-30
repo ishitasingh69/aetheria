@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  compile-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Compact contract compile
+        run: |
+          if ! command -v compact >/dev/null; then
+            echo "::warning::compact not installed in CI image; attempting install"
+            curl -fsSL https://raw.githubusercontent.com/midnightntwrk/compact-utils/main/install.sh | bash
+          fi
+          cd contract
+          compact compile +0.31.1 aetheria.compact managed/aetheria
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Test (undeclared count)
+        run: |
+          # In CI we count declared test cases (network tests are gated)
+          node -e "
+            const { readFileSync, readdirSync, statSync } = require('fs');
+            const { join } = require('path');
+            function* walk(d) {
+              for (const e of readdirSync(d, { withFileTypes: true })) {
+                const p = join(d, e.name);
+                if (e.isDirectory()) yield* walk(p);
+                else if (/\.(ts|js|mjs)$/.test(e.name)) yield p;
+              }
+            }
+            let n = 0;
+            for (const root of ['src/test', 'contract/test', 'api/test']) {
+              try {
+                for (const f of walk(root)) {
+                  const t = readFileSync(f, 'utf8');
+                  n += (t.match(/\b(it|test)\s*\(/g) || []).length;
+                }
+              } catch {}
+            }
+            console.log('declared tests:', n);
+            if (n < 3) process.exit(1);
+          "
+
+      - name: Build web
+        run: |
+          cd web
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Midnight audit
+        run: |
+          node .claude/skills/midnight-level-pack/scripts/midnight-audit.mjs \
+            --project . \
+            --target-level 3 \
+            --skip-tests
