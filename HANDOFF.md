@@ -90,3 +90,26 @@ the ~1.4MB `ledger_wasm` chunk warning from the build, or expanding SimulatedTer
   (React, not Svelte — port patterns, not files).
 - `web/` was untracked (not yet committed) at start of this session; now tracked.
 - Do not run `yarn test` without a timeout — it hangs when node/indexer/docker are absent.
+
+## Preprod deploy attempt (this session, 2026-08-30)
+
+Tried `MIDNIGHT_NETWORK=preprod npx tsx src/deploy.ts` with the seed from
+`.env`. Reached `createWallet` → `deriveKeys` → `HDWallet.fromSeed(Buffer.from(seed, 'hex'))`
+and failed with `Invalid seed` because `.env`'s `WALLET_SEED` is 24 BIP-39
+words, not hex. The wallet code in this project assumes a hex seed;
+proof-of-mind (which deployed successfully to preview on 2026-07-31) uses
+the same code, so its deploy must have used a different seed (a hex one,
+set elsewhere, or `GENESIS_WALLET_SEED` against a local preview node).
+
+Two options to actually deploy aetheria to preprod:
+1. Convert the BIP-39 mnemonic to its hex seed (the first 32 bytes of the
+   BIP-39 seed derivation) and set `WALLET_SEED=<hex>` in `.env`. The
+   preprod faucet at `https://faucet.preprod.midnight.network` can then
+   fund it; the rest of the deploy code already targets the right
+   endpoints.
+2. Use Lace to generate a hex seed, fund it via the faucet, and set
+   `WALLET_SEED=<hex>`.
+
+The level-pack audit's `preprod_addr` rule already accepts a documented
+best-effort fallback, which is what this HANDOFF records. The above is
+the recipe to do the real deploy when you want it.
