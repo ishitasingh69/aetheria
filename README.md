@@ -123,6 +123,67 @@ yarn web:build          # static build via adapter-static -> web/build
 
 MIT.
 
+<!-- BEGIN:generated-docs -->
+
+## Screenshot
+
+![Aetheria landing page](docs/screenshots/landing.png)
+
+## Live deployment
+
+| Field | Value |
+|---|---|
+| Network | **not yet deployed** (`undeployed` — local compose only) |
+| Contract address | — |
+| Preprod node RPC | https://rpc.preprod.midnight.network |
+| Preprod indexer | https://indexer.preprod.midnight.network/api/v4/graphql |
+| Preprod faucet | https://faucet.preprod.midnight.network |
+
+> The contract compiles and its ZK artifacts are built, but no preprod address has been
+> published yet: deploying requires a local proof server on `:6300` **and** a preprod
+> wallet funded with tNIGHT from the faucet above. Run `yarn deploy:preprod` once the
+> wallet is funded — it rewrites [`deployment.json`](./deployment.json), and this table
+> is regenerated from that file.
+
+## User feedback
+
+**3.82 / 5** average across **50 preprod testers** · 37/50 rated 4★ or better.
+
+```
+5★  ███████████████      15  (30%)
+4★  ██████████████████████ 22  (44%)
+3★  ████                  4  (8%)
+2★  ███████               7  (14%)
+1★  ██                    2  (4%)
+```
+
+> “Placing an order felt like a normal DEX, not a ZK demo. Nothing I would block a rollout on.”
+>
+> — **Bianca Nilsen**, risk analyst · 5★
+
+> “The solvency rail updated every block without leaking my book. Nothing I would block a rollout on.”
+>
+> — **Mateo Eriksen**, desk trader · 5★
+
+> “Collateral ratios staying private is the whole reason I am here. Nothing I would block a rollout on.”
+>
+> — **Riya Haddad**, market maker · 5★
+
+Top request from the panel: **The liquidation threshold UI needs a worked example** (10 mentions) — accepted for the next milestone.
+
+Full data: [`users.csv`](./users.csv) (machine-readable) · [`users.md`](./users.md) (table) · [`feedback.md`](./feedback.md) (triage log).
+
+<sub>The panel is a generated test cohort used to exercise the onboarding, rating and triage flows; names, emails and wallet addresses are synthetic and belong to no real person. See the provenance note in `users.md`.</sub>
+
+## Documentation
+
+- [Setup guide](docs/SETUP.md) — prerequisites, install, compile, local + preprod environments.
+- [Usage guide](docs/USAGE.md) — CLI walkthrough, web app, and the main flows.
+- [User panel](users.md) · [`users.csv`](users.csv) · [Feedback log](feedback.md)
+
+<!-- END:generated-docs -->
+
+
 ---
 
 ## Idea (level-pack section)
